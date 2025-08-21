@@ -58,17 +58,19 @@ app.get('/api/images', (req, res) => {
 });
 
 // Dynamic route for generating a shareable page for a single image
-app.get('/image-page/*', (req, res) => {
-    const imagePath = req.path.replace('/image-page/', '');
-    const fullImageUrl = `http://thaicard.store/${imagePath}`;
-    const pageUrl = `http://thaicard.store${req.path}`;
+// use a named wildcard parameter to avoid path-to-regexp parsing errors
+app.get(/^\/image-page\/(.*)$/, (req, res) => {
+        const imagePath = req.params && req.params[0] ? req.params[0] : '';
+        const host = req.get('host');
+        const protocol = req.protocol;
+        const fullImageUrl = `${protocol}://${host}/${imagePath}`;
+        const pageUrl = `${protocol}://${host}${req.originalUrl}`;
 
-    const html = `
-        <!DOCTYPE html>
+        const html = `<!doctype html>
         <html lang="en">
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
             <title>Thaicard Store Image</title>
             <meta property="og:title" content="Thaicard Store Image">
             <meta property="og:description" content="Check out this image from Thaicard Store.">
@@ -76,14 +78,14 @@ app.get('/image-page/*', (req, res) => {
             <meta property="og:url" content="${pageUrl}">
             <meta property="og:type" content="website">
             <meta name="twitter:card" content="summary_large_image">
-            <meta http-equiv="refresh" content="0; url=http://thaicard.store">
+            <meta http-equiv="refresh" content="0;url=${protocol}://${host}">
         </head>
         <body>
-            <p>If you are not redirected automatically, <a href="http://thaicard.store">click here</a>.</p>
+            <p>If you are not redirected automatically, <a href="${protocol}://${host}">click here</a>.</p>
         </body>
-        </html>
-    `;
-    res.send(html);
+        </html>`;
+
+        res.send(html);
 });
 
 app.listen(port, () => {
