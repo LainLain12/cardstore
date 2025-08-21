@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thaicard Store</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="A gallery of daily and historical Thai cards.">
+    <meta property="og:title" content="Thaicard Store">
+    <meta property="og:description" content="A gallery of daily and historical Thai cards.">
+    <meta property="og:image" content="/preview.png">
+    <meta property="og:url" content="https://www.yourdomain.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <img src="/logo.png" alt="Thaicard Store Logo" class="logo">
+                <span class="mdl-layout-title">Thaicard Store</span>
+            </div>
+            <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+                <a href="#daily" class="mdl-layout__tab is-active">Daily</a>
+                <a href="#history" class="mdl-layout__tab">History</a>
+            </div>
+        </header>
+        <main class="mdl-layout__content">
+            <section class="mdl-layout__tab-panel is-active" id="daily">
+                <div class="page-content" id="daily-content">
+                    <!-- Subfolders for daily will be loaded here -->
+                </div>
+            </section>
+            <section class="mdl-layout__tab-panel" id="history">
+                <div class="page-content" id="history-content">
+                    <!-- Subfolders for history will be loaded here -->
+                </div>
+            </section>
+        </main>
+    </div>
+    <!-- Image Modal -->
+    <div id="image-modal" class="modal">
+        <span class="close-button">&times;</span>
+        <img class="modal-content" id="modal-image">
+        <div class="share-buttons-container">
+             <div id="share-buttons"></div>
+        </div>
+    </div>
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
