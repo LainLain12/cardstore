@@ -6,6 +6,9 @@ body {
 .mdl-layout__header {
     background-color: #0a3330 !important;
 }
+.mdl-layout__header-row {
+    background-color: #0a3330 !important;
+}
 .mdl-layout-title, .mdl-layout__tab, .mdl-layout__tab-bar a {
     color: #ffffff !important;
 }
@@ -15,6 +18,12 @@ body {
 .mdl-layout__tab-bar {
     background-color: #0a3330 !important;
 }
+.mdl-layout__tab-bar, .mdl-layout__header, .mdl-layout__header-row {
+    border: none !important;
+    box-shadow: none !important;
+}
+.mdl-layout__tab { background: transparent !important; }
+.mdl-layout__tab-bar .mdl-tabs__tab { color: #ffffff !important; }
 
 .mdl-layout__tab-bar .mdl-tabs__tab.is-active::after {
     background-color: #0a3330 !important; /* accent underline now matches appbar */
