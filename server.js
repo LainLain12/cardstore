@@ -5,6 +5,10 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
+// If you're running behind a reverse proxy (nginx) that terminates TLS,
+// enable trust proxy so req.protocol reflects the original protocol (https).
+app.set('trust proxy', true);
+
 const imagesDir = path.join(__dirname, 'images');
 const dailyDir = path.join(imagesDir, 'daily');
 const historyDir = path.join(imagesDir, 'history');
@@ -66,8 +70,12 @@ app.get(/^\/image-page\/(.*)$/, (req, res) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
         const raw = req.params && req.params[0] ? req.params[0] : '';
-        const host = req.get('host');
-        const protocol = req.protocol;
+    const host = req.get('host');
+    // Prefer X-Forwarded-Proto when present (helps when behind TLS-terminating proxy)
+    const protoHeader = (req.headers && req.headers['x-forwarded-proto']) ? String(req.headers['x-forwarded-proto']).split(',')[0] : null;
+    const protocol = protoHeader || req.protocol;
+    // Log User-Agent for diagnosis (useful to see which crawler requested the page)
+    console.log('[image-page] UA=', req.headers['user-agent']);
 
     // decode the incoming path (client used encodeURIComponent), then normalize
         let decoded = '';
@@ -128,6 +136,8 @@ app.get(/^\/image-page\/(.*)$/, (req, res) => {
             <meta property="og:title" content="Thaicard Store Image">
             <meta property="og:description" content="Check out this image from Thaicard Store.">
             <meta property="og:image" content="${fullImageUrl}">
+            <meta property="og:image:secure_url" content="${fullImageUrl}">
+            <meta name="twitter:image" content="${fullImageUrl}">
             <meta property="og:url" content="${pageUrl}">
             <meta property="og:type" content="website">
             <meta name="twitter:card" content="summary_large_image">
@@ -196,7 +206,7 @@ app.get(/^\/image-page\/(.*)$/, (req, res) => {
                 if (copyBtn) {
                     copyBtn.addEventListener('click', (ev) => {
                         ev.preventDefault();
-                        navigator.clipboard.writeText('${pageUrl}').then(() => { alert('Link copied to clipboard'); }).catch(() => { alert('Could not copy link'); });
+                        navigator.clipboard.writeText('${pageUrl}').catch(()=>{});
                     });
                 }
 
@@ -239,8 +249,10 @@ app.get('/image', (req, res) => {
             return res.status(404).send('Image not found');
         }
 
-        const host = req.get('host');
-        const protocol = req.protocol;
+    const host = req.get('host');
+    const protoHeader = (req.headers && req.headers['x-forwarded-proto']) ? String(req.headers['x-forwarded-proto']).split(',')[0] : null;
+    const protocol = protoHeader || req.protocol;
+    console.log('[image-fallback] UA=', req.headers['user-agent']);
         const urlPath = normalized.split(path.sep).join('/');
         const fullImageUrl = `${protocol}://${host}/${encodeURI(urlPath)}`;
         const pageUrl = `${protocol}://${host}/image?img=${encodeURIComponent(urlPath)}`;
@@ -266,6 +278,8 @@ app.get('/image', (req, res) => {
             <meta property="og:title" content="Thaicard Store Image">
             <meta property="og:description" content="Check out this image from Thaicard Store.">
             <meta property="og:image" content="${fullImageUrl}">
+            <meta property="og:image:secure_url" content="${fullImageUrl}">
+            <meta name="twitter:image" content="${fullImageUrl}">
             <meta property="og:url" content="${pageUrl}">
             <meta property="og:type" content="website">
             <meta name="twitter:card" content="summary_large_image">

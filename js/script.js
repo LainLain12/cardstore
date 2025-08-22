@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (target && target.id === 'modal-copy') {
             e.preventDefault(); e.stopPropagation();
             const toCopy = target.dataset && target.dataset.pageUrl ? target.dataset.pageUrl : null;
-            if (toCopy) { navigator.clipboard.writeText(toCopy); alert('Link copied'); }
+            if (toCopy) { navigator.clipboard.writeText(toCopy).catch(()=>{}); }
         }
         if (target && target.id === 'modal-save') {
             // let the anchor behave as download by default
@@ -74,13 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // modal copy has dataset.pageUrl, grid copy triggers navigation already
             const toCopy = btn.dataset && btn.dataset.pageUrl ? btn.dataset.pageUrl : null;
             if (toCopy) {
-                navigator.clipboard.writeText(toCopy).then(() => { alert('Link copied to clipboard'); });
+                navigator.clipboard.writeText(toCopy).catch(()=>{});
             } else {
                 // fallback: try to derive from nearest image
                 const modalImage = document.getElementById('modal-image');
                 if (modalImage && modalImage.src) {
                     const p = `${window.location.origin}/image-page/${encodeURIComponent(modalImage.src)}`;
-                    navigator.clipboard.writeText(p).then(() => { alert('Link copied to clipboard'); });
+                    navigator.clipboard.writeText(p).catch(()=>{});
                 }
             }
             return;
@@ -157,11 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     copy.addEventListener('click', (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        // copy the share-page URL and open the modal to show the big image + thumbnails
-                        navigator.clipboard.writeText(pageUrl).then(() => {
-                            alert('Link copied to clipboard');
-                            openModalWithImage(imagePath);
-                        });
+                        // copy the share-page URL only (do not open modal)
+                        navigator.clipboard.writeText(pageUrl).catch(()=>{});
                     });
 
                     shareArea.appendChild(save);
@@ -203,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         ev.preventDefault(); ev.stopPropagation();
                                         const toCopy = target.getAttribute('data-page-url');
                                         if (toCopy) {
-                                            navigator.clipboard.writeText(toCopy).then(() => { alert('Link copied'); });
+                                            navigator.clipboard.writeText(toCopy).catch(()=>{});
                                         }
                                     }
                                 });
