@@ -47,6 +47,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Modal-level copy/save hooks
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target && target.id === 'modal-copy') {
+            e.preventDefault(); e.stopPropagation();
+            const toCopy = target.dataset && target.dataset.pageUrl ? target.dataset.pageUrl : null;
+            if (toCopy) { navigator.clipboard.writeText(toCopy); alert('Link copied'); }
+        }
+        if (target && target.id === 'modal-save') {
+            // let the anchor behave as download by default
+        }
+    });
+
+    // delegated handler for icon buttons (modal footer and in-grid small buttons)
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest && e.target.closest('.icon-btn');
+        if (!btn) return;
+        // handle copy buttons
+        if (btn.classList.contains('copy-link-btn')) {
+            e.preventDefault(); e.stopPropagation();
+            // modal copy has dataset.pageUrl, grid copy triggers navigation already
+            const toCopy = btn.dataset && btn.dataset.pageUrl ? btn.dataset.pageUrl : null;
+            if (toCopy) {
+                navigator.clipboard.writeText(toCopy).then(() => { alert('Link copied to clipboard'); });
+            } else {
+                // fallback: try to derive from nearest image
+                const modalImage = document.getElementById('modal-image');
+                if (modalImage && modalImage.src) {
+                    const p = `${window.location.origin}/image-page/${encodeURIComponent(modalImage.src)}`;
+                    navigator.clipboard.writeText(p).then(() => { alert('Link copied to clipboard'); });
+                }
+            }
+            return;
+        }
+        // save/download buttons: default anchor download should work; prevent modal open
+        if (btn.classList.contains('save-btn')) {
+            e.stopPropagation();
+            // no extra logic; anchor download will trigger
+            return;
+        }
+    });
+
     fetch('/api/images')
         .then(response => {
             if (!response.ok) {
@@ -89,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const pageUrl = `${window.location.origin}/image-page/${encodeURIComponent(imagePath)}`;
 
-                    // Save button (downloads the image)
+                    // Save and Copy text buttons (main grid previous style)
                     const save = document.createElement('a');
                     save.href = imagePath;
                     save.download = imageName || '';
@@ -134,13 +176,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         let currentIndex = Math.max(0, thumblist.indexOf(initialSrc));
 
-                        function showMain(src) {
+                        function showMain(src, index) {
+                            // update modal image (single image view)
                             modalImage.src = src;
-                            // update share buttons
+                            // update modal icon buttons (beside footer)
+                            const modalSave = document.getElementById('modal-save');
+                            const modalCopy = document.getElementById('modal-copy');
+                            if (modalSave) { modalSave.href = src; modalSave.setAttribute('download', ''); }
+                            if (modalCopy) { modalCopy.dataset.pageUrl = `${window.location.origin}/image-page/${encodeURIComponent(src)}`; }
+                            // update share buttons container too for backward compatibility
                             const pageUrlModal = `${window.location.origin}/image-page/${encodeURIComponent(src)}`;
+                            // keep legacy container hidden but populated for compatibility
                             shareButtonsContainer.innerHTML = `
-                                <a href="${src}" download class="save-btn" id="save-btn-modal">Save</a>
-                                <a href="#" id="copy-link-modal" class="copy-link-btn" data-page-url="${pageUrlModal}">Copy</a>
+                                <a href="${src}" download class="save-btn" id="save-btn-modal" style="display:none">Save</a>
+                                <a href="#" id="copy-link-modal" class="copy-link-btn" data-page-url="${pageUrlModal}" style="display:none">Copy</a>
                             `;
                             // Attach a single delegated listener if not already present
                             if (!shareButtonsContainer._copyListenerAttached) {
@@ -168,36 +217,30 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (sel) sel.scrollIntoView({behavior:'smooth', inline:'center'});
                         }
 
-                        // populate thumbnail strip
+                        // populate thumbnail strip and set modal image
                         thumbStrip.innerHTML = '';
-                        thumblist.forEach(src => {
+                        thumblist.forEach((src, idx) => {
                             const t = document.createElement('img');
                             t.src = src;
-                            t.addEventListener('click', (ev) => { ev.stopPropagation(); showMain(src); t.scrollIntoView({behavior:'smooth', inline:'center'}); });
+                            t.addEventListener('click', (ev) => { ev.stopPropagation(); showMain(src, idx); t.scrollIntoView({behavior:'smooth', inline:'center'}); });
+                            t.dataset.url = src;
                             thumbStrip.appendChild(t);
-                        });
-
-                        // basic touch swipe support on modal image area
-                        let touchStartX = 0;
-                        modalImage.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
-                        modalImage.addEventListener('touchend', (e) => {
-                            const dx = e.changedTouches[0].clientX - touchStartX;
-                            if (Math.abs(dx) > 40) {
-                                const imgs = Array.from(thumbStrip.querySelectorAll('img'));
-                                const newIndex = dx > 0 ? Math.max(0, currentIndex - 1) : Math.min(imgs.length - 1, currentIndex + 1);
-                                const target = imgs[newIndex];
-                                if (target) showMain(target.src);
-                            }
                         });
 
                         // open modal and show initial image
                         modal.style.display = 'block';
                         // prevent background scroll while modal is open
                         document.body.style.overflow = 'hidden';
-                        showMain(initialSrc);
+                        const startIndex = Math.max(0, thumblist.indexOf(initialSrc));
+                        showMain(initialSrc, startIndex);
                     }
 
-                    card.addEventListener('click', () => openModalWithImage(imagePath));
+                    // Clicking a grid image should generate the share link and forward to the standalone preview page
+                    card.addEventListener('click', () => {
+                        const pageUrl = `${window.location.origin}/image-page/${encodeURIComponent(imagePath)}`;
+                        // Navigate to the share page so other users hitting this URL see the same big-image + footer view
+                        window.location.href = pageUrl;
+                    });
 
                     grid.appendChild(card);
                 });

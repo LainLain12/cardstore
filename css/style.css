@@ -117,6 +117,9 @@ body {
     overflow: hidden;
 }
 
+.modal-control-row { height:50px; display:flex; align-items:center; background:rgba(0,0,0,0.6); padding:0 8px; }
+.modal-control-row a { color:#fff; text-decoration:none; font-weight:bold; }
+
 .modal-content {
     display: block;
     width: auto;
@@ -149,13 +152,20 @@ body {
 
 /* Thumbnail strip shown at bottom of fullscreen modal */
 .thumb-strip-container { position: relative; width: 100%; background: rgba(0,0,0,0.85); box-sizing: border-box; display:flex; align-items:center; height:50px; }
-.thumb-strip { display:flex; gap:8px; padding:6px 8px; align-items:center; overflow-x:auto; width:100%; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch }
+.thumb-strip { display:flex; gap:8px; padding:6px 8px; align-items:center; overflow-x:auto; width:100%; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; box-sizing: content-box; }
 /* modern carousel behavior */
 .thumb-strip {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 }
 .thumb-strip img { scroll-snap-align: center; height:42px; width:auto; border-radius:4px; cursor:pointer; opacity:0.85; transition:transform .12s, opacity .12s }
+
+/* center-gravity: add symmetric padding so first/last thumbs can snap to center */
+.thumb-strip {
+    /* horizontal padding equals half the container width minus half thumbnail width (approx) */
+    padding-inline: calc(50% - 22px);
+    scroll-padding-inline: 50%;
+}
 
 .thumb-nav {
     background: transparent;
@@ -172,13 +182,47 @@ body {
 .thumb-strip img.selected { outline: 3px solid #ffffff; opacity: 1; }
 
 /* Make modal image appear larger and centered for near-fullscreen view */
-.modal .modal-content { display:block; margin: 6px auto; }
+/* Make the modal image use the full image area so the entire photo is visible */
+.modal .modal-content { display:block; margin: 0; }
+
+/* Icon buttons (save/copy) placed beside the thumbnail footer */
+.thumb-strip-container .icon-btn {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:44px;
+    height:44px;
+    margin:0 6px;
+    color:#fff;
+    text-decoration:none;
+    background: rgba(10,51,48,0.85);
+    border-radius: 6px;
+}
+.thumb-strip-container .icon-btn i.material-icons { font-size:20px; }
+.thumb-strip-container .icon-btn:active { transform: scale(0.98); }
+.thumb-strip-container .icon-btn.save-btn { background: rgba(40,167,69,0.95); }
+.thumb-strip-container .icon-btn.copy-link-btn { background: rgba(108,117,125,0.95); }
+
+/* Ensure big images are centered (gravity center) in modal and standalone share page */
+.modal-image-area .modal-content,
+.modal-image-area img,
+.modal-image-area #bigimg,
+#bigimg {
+    display: block;
+    margin: 0;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center center;
+}
 
 /* Mobile-specific adjustments: ensure no extra vertical scrolling and fit image+footer */
 @media (max-width: 600px) {
     .modal-inner { height: 100vh; }
     .modal { padding-top: 0; }
-    .thumb-strip { padding: 6px 10px; }
+    .thumb-strip { padding: 6px 10px; padding-inline: calc(50% - 18px); }
     .thumb-strip img { height: 36px; }
     .share-controls { margin-left: 8px; }
     #share-buttons a { flex: 0 0 calc((100% - 30px) / 2); height: 26px; }

@@ -48,16 +48,28 @@
             <a class="modal-close" href="/">&#10005;</a>
         </div>
         <div class="modal-inner">
+            <div class="modal-topbar">
+                <a class="modal-back" href="/">&#8592;</a>
+                <a class="modal-close" href="/">&#10005;</a>
+            </div>
+            <div class="modal-control-row" style="display:none;">
+                <!-- preserved for compatibility but hidden; main save/copy are shown beside the thumbnail footer -->
+            </div>
             <div class="modal-image-area">
                 <img class="modal-content" id="modal-image">
             </div>
             <div class="thumb-strip-container">
-                <div class="share-controls-row">
-                    <div class="share-controls" id="share-buttons"></div>
-                </div>
+                <a id="modal-save" class="icon-btn save-btn" href="#" title="Save" aria-label="Save">
+                    <i class="material-icons">file_download</i>
+                </a>
                 <div class="carousel-row">
                     <div class="thumb-strip" id="thumb-strip"></div>
                 </div>
+                <a id="modal-copy" class="icon-btn copy-link-btn" href="#" title="Copy link" aria-label="Copy link">
+                    <i class="material-icons">content_copy</i>
+                </a>
+                <!-- backward-compat container used by script to inject legacy buttons if needed -->
+                <div id="share-buttons" style="display:none"></div>
             </div>
         </div>
     </div>
