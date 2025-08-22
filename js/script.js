@@ -23,11 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalImage = document.getElementById('modal-image');
     const modalClose = modal.querySelector('.close-button');
 
-    // Close modal when close button clicked
+    // Close modal when close button clicked - redirect to main page so share-preview UX matches standalone page
     modalClose.addEventListener('click', () => {
-        modal.style.display = 'none';
-        modalImage.src = '';
-        document.body.style.overflow = ''; // restore scroll
+        window.location.href = '/';
     });
 
     // Close modal when clicking outside the image
@@ -113,8 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     copy.addEventListener('click', (e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        // copy the share-page URL and open the modal to show the big image + thumbnails
                         navigator.clipboard.writeText(pageUrl).then(() => {
                             alert('Link copied to clipboard');
+                            openModalWithImage(imagePath);
                         });
                     });
 
@@ -122,8 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     shareArea.appendChild(copy);
                     card.appendChild(shareArea);
 
-                    card.addEventListener('click', () => {
-                        // open modal view for larger preview (almost fullscreen)
+                    // open modal helper - show a large image and thumbnail footer for navigation
+                    function openModalWithImage(initialSrc) {
                         const modal = document.getElementById('image-modal');
                         const modalImage = document.getElementById('modal-image');
                         const shareButtonsContainer = document.getElementById('share-buttons');
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Build list of thumbnails: other images in the same folder
                         const thumblist = imageList.map(name => `${basePath}/${folder}/${name}`);
 
-                        let currentIndex = thumblist.indexOf(imagePath);
+                        let currentIndex = Math.max(0, thumblist.indexOf(initialSrc));
 
                         function showMain(src) {
                             modalImage.src = src;
@@ -177,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             thumbStrip.appendChild(t);
                         });
 
-                        // keyboard left/right still navigate; touch swipe still supported
                         // basic touch swipe support on modal image area
                         let touchStartX = 0;
                         modalImage.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
@@ -191,12 +190,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
 
-                        // open modal and show clicked image
+                        // open modal and show initial image
                         modal.style.display = 'block';
                         // prevent background scroll while modal is open
                         document.body.style.overflow = 'hidden';
-                        showMain(imagePath);
-                    });
+                        showMain(initialSrc);
+                    }
+
+                    card.addEventListener('click', () => openModalWithImage(imagePath));
 
                     grid.appendChild(card);
                 });

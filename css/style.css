@@ -104,9 +104,13 @@ body {
     box-sizing: border-box;
 }
 
-/* Fixed image area: always 100vh - footer (50px). This makes image size constant regardless of content. */
+/* Topbar inside modal (50px) */
+.modal-topbar { height:50px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; background:rgba(0,0,0,0.6); }
+.modal-topbar a { color:#fff; text-decoration:none; font-size:18px; }
+
+/* Fixed image area: always 100vh - topbar(50px) - footer(50px) => 100 total */
 .modal-image-area {
-    height: calc(100vh - 50px);
+    height: calc(100vh - 100px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -144,43 +148,14 @@ body {
 }
 
 /* Thumbnail strip shown at bottom of fullscreen modal */
-.thumb-strip-container {
-    position: relative;
-    width: 100%;
-    background: rgba(0,0,0,0.85);
-    padding: 6px 8px;
-    box-sizing: border-box;
-    height: 92px; /* taller footer to fit controls above carousel */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-.share-controls-row { display: flex; align-items: flex-start; height: 36px; padding-bottom: 6px; }
-.share-controls { margin-right: 8px; display: flex; gap: 8px; align-items: flex-start; margin-left: 10px; width: calc(100% - 20px); }
-.carousel-row { display: flex; align-items: center; gap: 8px; height: 50px; justify-content: center; }
-.thumb-strip {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 6px 8px;
-    align-items: center;
-    flex: 0 1 auto;
-    justify-content: center;
-}
+.thumb-strip-container { position: relative; width: 100%; background: rgba(0,0,0,0.85); box-sizing: border-box; display:flex; align-items:center; height:50px; }
+.thumb-strip { display:flex; gap:8px; padding:6px 8px; align-items:center; overflow-x:auto; width:100%; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch }
 /* modern carousel behavior */
 .thumb-strip {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 }
-.thumb-strip img { scroll-snap-align: center; }
-.thumb-strip img {
-    height: 42px;
-    width: auto;
-    border-radius: 4px;
-    cursor: pointer;
-    opacity: 0.85;
-    transition: transform .12s, opacity .12s;
-}
+.thumb-strip img { scroll-snap-align: center; height:42px; width:auto; border-radius:4px; cursor:pointer; opacity:0.85; transition:transform .12s, opacity .12s }
 
 .thumb-nav {
     background: transparent;
