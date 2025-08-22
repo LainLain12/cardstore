@@ -2,6 +2,24 @@ body {
     background-color: #f5f5f5;
 }
 
+/* App bar styling */
+.mdl-layout__header {
+    background-color: #0a3330 !important;
+}
+.mdl-layout-title, .mdl-layout__tab, .mdl-layout__tab-bar a {
+    color: #ffffff !important;
+}
+.mdl-layout__tab.is-active {
+    color: #ffffff !important;
+}
+.mdl-layout__tab-bar {
+    background-color: #0a3330 !important;
+}
+
+.mdl-layout__tab-bar .mdl-tabs__tab.is-active::after {
+    background-color: #0a3330 !important; /* accent underline now matches appbar */
+}
+
 .page-content {
     padding: 20px;
 }
@@ -48,31 +66,50 @@ body {
 }
 
 .logo {
-    height: 40px;
-    width: 40px;
+    /* Small logo preserving original ratio (half of 104x48) */
+    width: 52px;
+    height: 24px;
     margin-right: 16px;
-    border-radius: 50%;
+    border-radius: 0;
+    object-fit: contain;
 }
 
 /* Image Modal Styles */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.9);
-    padding-top: 60px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* prevent vertical scroll inside modal */
+    background-color: rgba(0,0,0,0.95);
+    padding-top: 0;
+}
+
+.modal-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Fixed image area: always 100vh - footer (50px). This makes image size constant regardless of content. */
+.modal-image-area {
+    height: calc(100vh - 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .modal-content {
-    margin: auto;
     display: block;
-    width: 80%;
-    max-width: 700px;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 .close-button {
@@ -97,15 +134,87 @@ body {
     padding: 20px;
 }
 
+/* Thumbnail strip shown at bottom of fullscreen modal */
+.thumb-strip-container {
+    position: relative;
+    width: 100%;
+    background: rgba(0,0,0,0.85);
+    padding: 6px 8px;
+    box-sizing: border-box;
+    height: 92px; /* taller footer to fit controls above carousel */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.share-controls-row { display: flex; align-items: flex-start; height: 36px; padding-bottom: 6px; }
+.share-controls { margin-right: 8px; display: flex; gap: 8px; align-items: flex-start; margin-left: 10px; width: calc(100% - 20px); }
+.carousel-row { display: flex; align-items: center; gap: 8px; height: 50px; justify-content: center; }
+.thumb-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 6px 8px;
+    align-items: center;
+    flex: 0 1 auto;
+    justify-content: center;
+}
+/* modern carousel behavior */
+.thumb-strip {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+.thumb-strip img { scroll-snap-align: center; }
+.thumb-strip img {
+    height: 42px;
+    width: auto;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: transform .12s, opacity .12s;
+}
+
+.thumb-nav {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    padding: 6px;
+    cursor: pointer;
+}
+.thumb-nav:active { transform: scale(0.98); }
+.thumb-nav.prev { margin-right: 6px; }
+.thumb-nav.next { margin-left: 6px; }
+.thumb-strip img:hover { transform: scale(1.05); opacity: 1; }
+.thumb-strip img.selected { outline: 3px solid #ffffff; opacity: 1; }
+
+/* Make modal image appear larger and centered for near-fullscreen view */
+.modal .modal-content { display:block; margin: 6px auto; }
+
+/* Mobile-specific adjustments: ensure no extra vertical scrolling and fit image+footer */
+@media (max-width: 600px) {
+    .modal-inner { height: 100vh; }
+    .modal { padding-top: 0; }
+    .thumb-strip { padding: 6px 10px; }
+    .thumb-strip img { height: 36px; }
+    .share-controls { margin-left: 8px; }
+    #share-buttons a { flex: 0 0 calc((100% - 30px) / 2); height: 26px; }
+}
+
 #share-buttons a {
-    display: inline-block;
-    margin: 0 10px;
-    padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 6px 8px;
+    height: 28px; /* lower height as requested */
+    line-height: 1;
     border-radius: 5px;
     color: white;
     text-decoration: none;
     font-weight: bold;
     transition: transform 0.2s;
+    /* width formula: (100% - 30px) / 2 */
+    flex: 0 0 calc((100% - 30px) / 2);
 }
 
 #share-buttons a:hover {
@@ -117,3 +226,4 @@ body {
 .pinterest-btn { background-color: #cb2027; }
 .whatsapp-btn { background-color: #25D366; }
 .copy-link-btn { background-color: #6c757d; }
+.save-btn { background-color: #28a745; }
