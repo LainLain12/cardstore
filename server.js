@@ -110,6 +110,20 @@ app.get(/^\/image-page\/(.*)$/, (req, res) => {
         const fullImageUrl = `${protocol}://${host}/${encodeURI(urlPath)}`;
         const pageUrl = `${protocol}://${host}/image-page/${encodeURIComponent(urlPath)}`;
 
+        // If the client requested the path-encoded form (contains %2F), some proxies
+        // or messengers may rewrite or redirect those requests. Redirect such requests
+        // to the safer query-style URL which is less likely to be altered: /image?img=...
+        try {
+            const rawRequest = req.originalUrl || req.url || '';
+            if (rawRequest.includes('%2F')) {
+                const safe = `/image?img=${encodeURIComponent(urlPath)}`;
+                console.log('[image-page] redirecting encoded-path request to', safe);
+                return res.redirect(302, safe);
+            }
+        } catch (e) {
+            // ignore
+        }
+
         // Determine list of images in the same folder for the thumbnail carousel
         const folderAbsolute = path.dirname(absolute);
         let filesInFolder = [];

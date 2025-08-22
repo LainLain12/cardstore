@@ -236,11 +236,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         showMain(initialSrc, startIndex);
                     }
 
-                    // Clicking a grid image should generate the share link and forward to the standalone preview page
+                    // Clicking a grid image opens the in-app modal preview (do not navigate away)
                     card.addEventListener('click', () => {
-                        const pageUrl = `${window.location.origin}/image-page/${encodeURIComponent(imagePath)}`;
-                        // Navigate to the share page so other users hitting this URL see the same big-image + footer view
-                        window.location.href = pageUrl;
+                        openModalWithImage(imagePath);
                     });
 
                     grid.appendChild(card);
