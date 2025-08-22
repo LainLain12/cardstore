@@ -23,8 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalImage = document.getElementById('modal-image');
     const modalClose = modal.querySelector('.close-button');
 
-    // Close modal when close button clicked - redirect to main page so share-preview UX matches standalone page
+    // Close modal when close button clicked - prefer going back in history so we return to previous tab/state
     modalClose.addEventListener('click', () => {
+        if (window.history && window.history.length > 1) {
+            try { window.history.back(); return; } catch (e) { /* fallback */ }
+        }
+        // fallback to root if no history entry to go back to
         window.location.href = '/';
     });
 
@@ -284,13 +288,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     const tabLink = document.createElement('a');
                     tabLink.href = `#${panelId}`;
                     tabLink.className = 'mdl-tabs__tab';
-                    if (index === 0) tabLink.classList.add('is-active');
+                    // If the URL fragment matches this panel, make it active. Otherwise default to first.
+                    const currentHash = (window.location.hash || '').replace('#', '');
+                    if (currentHash === panelId) {
+                        tabLink.classList.add('is-active');
+                    } else if (index === 0 && !tabBar.querySelector('.is-active')) {
+                        tabLink.classList.add('is-active');
+                    }
                     tabLink.textContent = folder;
                     tabBar.appendChild(tabLink);
 
                     const tabPanel = document.createElement('div');
                     tabPanel.className = 'mdl-tabs__panel';
-                    if (index === 0) tabPanel.classList.add('is-active');
+                    if (currentHash === panelId) {
+                        tabPanel.classList.add('is-active');
+                    } else if (index === 0 && !tabsContainer.querySelector('.mdl-tabs__panel.is-active')) {
+                        tabPanel.classList.add('is-active');
+                    }
                     tabPanel.id = panelId;
                     
                     const grid = createImageGrid(folder, 'images/daily', allImages);
